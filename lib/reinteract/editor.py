@@ -191,7 +191,7 @@ class Editor(gobject.GObject):
                 self.state != NotebookFile.NONE and
                 self.state != NotebookFile.EXECUTING)
 
-    def calculate(self):
+    def calculate(self, end_at_insert=False):
         pass
 
     def undo(self):

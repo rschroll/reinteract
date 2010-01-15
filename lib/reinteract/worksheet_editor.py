@@ -98,8 +98,8 @@ class WorksheetEditor(Editor):
         self.buf.place_cursor(self.buf.get_start_iter())
         self.calculate()
 
-    def calculate(self):
-        self.view.calculate()
+    def calculate(self, end_at_insert=False):
+        self.view.calculate(end_at_insert)
 
     def undo(self):
         self.buf.worksheet.undo()

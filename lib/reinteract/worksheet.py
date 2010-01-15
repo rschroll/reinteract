@@ -569,7 +569,7 @@ class Worksheet(gobject.GObject):
                 if module == module_name:
                     self.__mark_rest_for_execute(chunk.start)
 
-    def calculate(self, wait=False):
+    def calculate(self, wait=False, end_line=None):
         _debug("Calculating")
 
         self.__freeze_changes()
@@ -579,7 +579,7 @@ class Worksheet(gobject.GObject):
 
         executor = None
 
-        for chunk in self.iterate_chunks():
+        for chunk in self.iterate_chunks(end_line=end_line):
             if isinstance(chunk, StatementChunk):
                 changed = False
 
@@ -592,6 +592,10 @@ class Worksheet(gobject.GObject):
                     executor.add_statement(statement)
 
                 parent = chunk.statement
+        
+        # See if there are any more statements after the ones we are executing
+        more_statements = (end_line is not None) and \
+            any(isinstance(chunk, StatementChunk) for chunk in self.iterate_chunks(start_line=end_line))
 
         if executor:
             if wait:
@@ -614,7 +618,12 @@ class Worksheet(gobject.GObject):
 
             def on_complete(executor):
                 self.__executor = None
-                self.__set_state(NotebookFile.ERROR if self.__executor_error else NotebookFile.EXECUTE_SUCCESS)
+                if self.__executor_error:
+                    self.__set_state(NotebookFile.ERROR)
+                elif more_statements:
+                    self.__set_state(NotebookFile.NEEDS_EXECUTE)
+                else:
+                    self.__set_state(NotebookFile.EXECUTE_SUCCESS)
                 if wait:
                     loop.quit()
 
@@ -632,7 +641,8 @@ class Worksheet(gobject.GObject):
         else:
             # Nothing to execute, we could have been in a non-success state if statements were deleted
             # at the end of the file.
-            self.__set_state(NotebookFile.EXECUTE_SUCCESS)
+            if not more_statements:
+                self.__set_state(NotebookFile.EXECUTE_SUCCESS)
 
         self.__thaw_changes()
 

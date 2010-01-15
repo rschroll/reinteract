@@ -675,10 +675,16 @@ class ShellView(gtk.TextView):
         if new_position:
             self.__invalidate_char_position(new_position)
 
-    def calculate(self):
+    def calculate(self, end_at_insert=False):
         buf = self.get_buffer()
 
-        buf.worksheet.calculate()
+        if end_at_insert:
+            end_line = buf.iter_to_pos(buf.get_iter_at_mark(buf.get_insert()), 
+                ADJUST_BEFORE)[0] + 1 # +1 to include line with cursor
+        else:
+            end_line = None
+
+        buf.worksheet.calculate(end_line=end_line)
 
         # This is a hack to work around the fact that scroll_mark_onscreen()
         # doesn't wait for a size-allocate cycle, so doesn't properly handle
