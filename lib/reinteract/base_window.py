@@ -96,6 +96,7 @@ class BaseWindow:
             ('delete',  gtk.STOCK_DELETE,    None,         None,              None,  self.on_delete),
             ('about',   gtk.STOCK_ABOUT,     None,         None,              None, self.on_about),
             ('calculate', gtk.STOCK_REFRESH, "Ca_lculate", '<control>Return', None,  self.on_calculate),
+            ('calculate-to-line', gtk.STOCK_REDO, "Calculate to Line", '<shift>Return', None, self.on_calculate),
             ('break',   gtk.STOCK_CANCEL,    "_Break",     '<control>Break',  None,  self.on_break),
             ('preferences', gtk.STOCK_PREFERENCES, "Prefere_nces",     None,  None,  self.on_preferences),
         ])
@@ -235,8 +236,12 @@ class BaseWindow:
             self.current_editor.view.delete_selection(True, self.view.get_editable())
 
     def on_calculate(self, action):
+        if action.get_name() == 'calculate-to-line':
+            end_at_insert = True
+        else:
+            end_at_insert = False
         if self.current_editor and self.current_editor.needs_calculate:
-            self.current_editor.calculate()
+            self.current_editor.calculate(end_at_insert=end_at_insert)
 
     def on_break(self, action):
         if self.current_editor:
@@ -253,13 +258,14 @@ class BaseWindow:
             if main_menu.handle_key_press(event):
                 return True
 
-        # We have a <Control>Return accelerator, but this hooks up <Control>KP_Enter as well;
-        # maybe someone wants that
-        if ((event.keyval == gtk.keysyms.Return or event.keyval == gtk.keysyms.KP_Enter) and
-            (event.state & gtk.gdk.CONTROL_MASK != 0) and
-            (event.state & gtk.gdk.SHIFT_MASK == 0)):
+        # Hook up KP_Enter to work like the Return key.  In keeping with
+        # Mathematica, KP_Enter without modifiers works as <shift>Return.
+        if event.keyval == gtk.keysyms.KP_Enter:
             if self.current_editor and self.current_editor.needs_calculate:
-                self.current_editor.calculate()
+                if event.state & gtk.gdk.CONTROL_MASK != 0:
+                    self.current_editor.calculate(end_at_insert=False)
+                else:
+                    self.current_editor.calculate(end_at_insert=True)
             return True
         return False
 
@@ -283,6 +289,7 @@ class BaseWindow:
 
     def update_sensitivity(self):
         self._set_action_sensitive('calculate', self.current_editor is not None and self.current_editor.needs_calculate)
+        self._set_action_sensitive('calculate-to-line', self.current_editor is not None and self.current_editor.needs_calculate)
         self._set_action_sensitive('break', self.current_editor is not None and self.current_editor.state == NotebookFile.EXECUTING)
 
         # This seems more annoying than useful. gedit doesn't desensitize save

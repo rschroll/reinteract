@@ -41,6 +41,7 @@ class MiniWindow(BaseNotebookWindow):
          <menuitem action="delete"/>
          <separator/>
          <menuitem action="calculate"/>
+         <menuitem action="calculate-to-line"/>
          <menuitem action="break"/>
          <separator/>
          <menuitem action="calculate-all"/>

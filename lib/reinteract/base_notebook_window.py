@@ -128,7 +128,7 @@ class BaseNotebookWindow(BaseWindow):
             ('notebook-properties', gtk.STOCK_PROPERTIES, "Notebook _Properties", None,         None, self.on_notebook_properties),
             ('new-worksheet',       gtk.STOCK_NEW,        "_New Worksheet",       "<control>n", None, self.on_new_worksheet),
             ('new-library',         gtk.STOCK_NEW,        "New _Library",         "",           None, self.on_new_library),
-            ('calculate-all',       gtk.STOCK_REFRESH,    "Calculate _All",       "<control><shift>Return",  None, self.on_calculate_all),
+            ('calculate-all',       gtk.STOCK_REFRESH,    "Calculate _All",       "<control><alt>Return",  None, self.on_calculate_all),
         ])
 
     def _close_current(self):
