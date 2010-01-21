@@ -14,8 +14,6 @@ import pango
 
 from notebook import Notebook, NotebookFile, WorksheetFile, MiscFile, LibraryFile
 
-_HEADER_COLOR = gtk.gdk.Color(0xffff,0xdddd,0xbbbb)
-
 _debug = logging.getLogger("FileList").debug
 
 ######################################################################
@@ -253,7 +251,7 @@ class FileList(gtk.TreeView):
         cell.props.text = item.get_text()
 
         if isinstance(item, _HeaderItem):
-            cell.props.background_gdk = _HEADER_COLOR
+            cell.props.background_gdk = self.style.bg[gtk.STATE_NORMAL]
         else:
             cell.props.background_set = False
 
@@ -266,7 +264,7 @@ class FileList(gtk.TreeView):
         item = model.get_value(iter, 0)
 
         if isinstance(item, _HeaderItem):
-            cell.props.background_gdk = gtk.gdk.Color(0xffff,0xdddd,0xbbbb)
+            cell.props.background_gdk = self.style.bg[gtk.STATE_NORMAL]
         else:
             cell.props.background_gdk = None
 
