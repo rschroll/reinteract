@@ -53,6 +53,7 @@ reinteractpkg_PYTHON =                                                        \
                     lib/reinteract/thread_executor.py                         \
                     lib/reinteract/tokenized_statement.py                     \
                     lib/reinteract/undo_stack.py                              \
+                    lib/reinteract/reunicode.py                               \
                     lib/reinteract/window_builder.py                          \
                     lib/reinteract/worksheet.py                               \
                     lib/reinteract/worksheet_editor.py                        \
