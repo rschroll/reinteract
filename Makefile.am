@@ -10,13 +10,13 @@ dist_noinst_SCRIPTS =				\
 reinteractpkgdir = $(REINTERACT_PACKAGE_DIR)
 reinteractpkg_PYTHON =                                                        \
                     lib/reinteract/__init__.py                                \
-		    lib/reinteract/about_dialog.py			      \
-		    lib/reinteract/application.py			      \
-		    lib/reinteract/application_state.py			      \
-		    lib/reinteract/base_window.py			      \
-		    lib/reinteract/base_notebook_window.py		      \
-		    lib/reinteract/change_range.py			      \
-		    lib/reinteract/chunks.py			      	      \
+                    lib/reinteract/about_dialog.py                            \
+                    lib/reinteract/application.py                             \
+                    lib/reinteract/application_state.py                       \
+                    lib/reinteract/base_window.py                             \
+                    lib/reinteract/base_notebook_window.py                    \
+                    lib/reinteract/change_range.py                            \
+                    lib/reinteract/chunks.py                                  \
                     lib/reinteract/completion_popup.py                        \
                     lib/reinteract/config_file.py                             \
                     lib/reinteract/custom_result.py                           \
