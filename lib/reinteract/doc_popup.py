@@ -12,7 +12,7 @@ import gtk
 import data_format
 import doc_format
 from global_settings import global_settings
-from popup import Popup
+from popup import Popup, VERTICAL_GAP
 
 MAX_HEIGHT = 300
 PADDING = 5
@@ -90,6 +90,8 @@ class DocPopup(Popup):
 
         self.__target = None
         self.focused = False
+        
+        self.__position_info = None
 
     def __update_font(self, *args):
         if global_settings.doc_tooltip_font_is_custom:
@@ -195,6 +197,30 @@ class DocPopup(Popup):
             child_allocation.width = scrollbar_width
             child_allocation.height = allocation.height - 2
             self.__scrollbar.size_allocate(child_allocation)
+        
+        # If we need to finish up positioning....
+        if self.__position_info:
+            pos = self.__position_info
+            # We must leave __position_info set for the next time, since there 
+            # be several allocation calls before the size is properly set.
+            
+            # If the popup would go off the bottom of the screen, move it to
+            # above the cursor, unless that would take it off the top of the
+            # screen.
+            if pos['ybelow'] + self.allocation.height > pos['screen_height'] \
+                    and pos['yabove'] - self.allocation.height >= 0:
+                y = pos['yabove'] - self.allocation.height
+            else:
+                y = pos['ybelow']
+            
+            # Move the popup to the left until it is entirely on screen, or
+            # until the left side hits the left edge of the screen.
+            x = pos['x']
+            if x + self.allocation.width > pos['screen_width']:
+                x = pos['screen_width'] - self.allocation.width
+                if x < 0: x = 0
+            
+            self.move(x, y)
 
     def do_expose_event(self, event):
         Popup.do_expose_event(self, event)
@@ -300,6 +326,34 @@ class DocPopup(Popup):
             return True
         else:
             return self.event(event)
+    
+    def position_at_location(self, view, location):
+        """Position the popup relative to a location within a gtk.TextView"""
+        
+        buf = view.get_buffer()
+
+        cursor_rect = view.get_iter_location(location)
+        cursor_rect.x, cursor_rect.y = view.buffer_to_window_coords(gtk.TEXT_WINDOW_TEXT, cursor_rect.x, cursor_rect.y)
+
+        window = view.get_window(gtk.TEXT_WINDOW_TEXT)
+        window_x, window_y = window.get_origin()
+        cursor_rect.x += window_x
+        cursor_rect.y += window_y
+        
+        # To correctly position, we need to know the popup's size.  But we won't
+        # know the size of a DocPopup until it's allocated, so we store the
+        # relevant info here and finish the job in do_size_allocate()
+        self.__position_info = {'x': cursor_rect.x,
+                                'yabove': cursor_rect.y - VERTICAL_GAP,
+                                'ybelow': cursor_rect.y + cursor_rect.height + VERTICAL_GAP,
+                                'screen_height': window.get_screen().get_height(),
+                                'screen_width': window.get_screen().get_width()}
+
+    def position_next_to_window(self, *args, **kw):
+        # Not necessary right now, but to be safe we turn off the positioning code
+        self.__position_info = None
+        Popup.position_next_to_window(self, *args, **kw)
+
 
 if __name__ == "__main__": # INTERACTIVE
     import re
