@@ -42,7 +42,7 @@ def format_duration(past):
         return "1 month ago"
     elif diff_days < 365:
         return "%.0f months ago" % (diff_days / 30.)
-    elif diff_days < 550 * 1.5:
+    elif diff_days < 547.5:
         return "1 year ago"
     else:
         return "%.0f years ago" % (diff_days / 365.)
