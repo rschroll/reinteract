@@ -87,11 +87,17 @@ def main():
             if not application.open_path(absolute):
                 sys.exit(1)
     else:
-        recent_notebooks = application.state.get_recent_notebooks(max_count=1)
-        if len(recent_notebooks) > 0:
-            notebook_dir = recent_notebooks[0].path
-            window = application.open_notebook(notebook_dir)
-        else:
+        recent_notebooks = application.state.get_recent_notebooks()
+        window = None
+        for notebook in recent_notebooks:
+            notebook_dir = notebook.path
+            try:
+                window = application.open_notebook(notebook_dir)
+            except OSError:
+                pass
+            else:
+                break
+        if window is None:
             notebook_dir = os.path.expanduser(os.path.join(global_settings.notebooks_dir, "Main"))
             if not os.path.exists(notebook_dir):
                 window = application.create_notebook(notebook_dir,
