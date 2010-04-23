@@ -9,6 +9,7 @@
 import os
 import re
 import sys
+import subprocess
 
 import gtk
 
@@ -24,6 +25,8 @@ import reunicode
 
 if global_settings.main_menu_mode:
     from main_menu import main_menu
+
+CALL_CMD = {'mac': 'open', 'posix': 'xdg-open'}
 
 class BaseWindow:
     def __init__(self, notebook):
@@ -131,12 +134,18 @@ class BaseWindow:
         elif filename.endswith(".py") or filename.endswith(".PY"):
             editor = LibraryEditor(self.notebook)
         else:
-            dialog = gtk.MessageDialog(buttons=gtk.BUTTONS_OK,
-                                       type=gtk.MESSAGE_ERROR)
-            dialog.set_markup(format_escaped("<big><b>Don't know how to open '%s'</b></big>", os.path.basename(filename)))
-            dialog.format_secondary_text("'%s' does not have a recognized file extension" % filename)
-            dialog.run()
-            dialog.destroy()
+            try:
+                os.startfile(filename)
+            except AttributeError:
+                try:
+                    subprocess.call([CALL_CMD[os.name], filename])
+                except (KeyError, OSError):
+                    dialog = gtk.MessageDialog(buttons=gtk.BUTTONS_OK,
+                                               type=gtk.MESSAGE_ERROR)
+                    dialog.set_markup(format_escaped("<big><b>Don't know how to open '%s'</b></big>", os.path.basename(filename)))
+                    dialog.format_secondary_text("'%s' does not have a recognized file extension" % filename)
+                    dialog.run()
+                    dialog.destroy()
             return None
 
         try:
